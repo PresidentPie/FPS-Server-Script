@@ -1,0 +1,192 @@
+local rs = game:GetService("ReplicatedStorage")
+
+local function bleed(hP,rR,hp)
+	local emitter = game.ReplicatedStorage.HitEffects.Blood:Clone()
+	emitter.Parent = hp
+	emitter.Position = hP
+	emitter.CFrame = CFrame.new(rR.Position, rR.Position + rR.Normal)
+	emitter.ParticleEmitter.Enabled = true
+	local weld = Instance.new("Weld")
+	weld.Parent = hp
+	weld.Part0 = hp
+	weld.Part1 = emitter
+	task.wait(3)
+	emitter.ParticleEmitter.Enabled = false
+	emitter:Destroy()
+end
+
+local function miss(hP,rR,hp)
+	local bulletimpact = rs.HitEffects.Bullethole:Clone()
+	bulletimpact.Parent = workspace
+	bulletimpact.Position = hP
+	local hiteffect = rs.HitEffects.HitEffect:Clone()
+	hiteffect.Parent = workspace
+	hiteffect.Position = hP
+	bulletimpact.CFrame = CFrame.new(rR.Position, rR.Position + rR.Normal)
+	hiteffect.CFrame = CFrame.new(rR.Position, rR.Position + rR.Normal)
+	hiteffect.Sound.Playing = true
+	hiteffect.ParticleEmitter.Enabled = true
+	task.wait(0.6)
+	hiteffect.ParticleEmitter.Enabled = false
+	task.wait(7)
+	bulletimpact:Destroy()
+	hiteffect:Destroy()
+end
+
+game.ReplicatedStorage.Remotes.Shoot.OnServerEvent:Connect(function(player,mouse,FlashPart)
+
+	local function hitmarker()
+		local hitmarker = rs.Sounds.HitMarker:Clone()
+		hitmarker.Parent = player.PlayerGui
+		hitmarker.Playing = true
+		task.wait(2)
+		hitmarker:Destroy()
+	end
+
+	local ig = {player.Character}
+	local rr = RaycastParams.new()
+	rr.FilterDescendantsInstances = ig
+	rr.FilterType = Enum.RaycastFilterType.Blacklist
+	rr.CollisionGroup = "Default"
+
+	local range = 300
+	local damage = 21
+	local headshotMultiplier = 7
+	local bodyshotMultiplier = 2
+	local armshotMultiplier = 1.4
+	local legshotMultiplier = 1.6
+	local footshotMultiplier = 0.1
+
+
+
+
+	local arms = {"RightUpperArm","RightLowerArm","RightHand","LeftUpperArm","LeftLowerArm","LeftHand"}
+	local legs = {"RightUpperLeg","RightLowerLeg","LeftUpperLeg","LeftLowerLeg"}
+	local feet = {"RightFoot","LeftFoot"}
+	local torso = {"UpperTorso","LowerTorso","HumanoidRootPart"}
+
+
+	local sP = FlashPart
+	local d = (mouse - sP).Unit
+	local rR = workspace:Raycast(sP,(mouse - sP)*range,rr)
+	local i = rR and rR.Position or sP + d * range
+	if rR then
+		local hp = rR.Instance
+		local hP = rR.Position
+		if hp then
+			print(hp.Name)
+			local m = hp.Parent
+			if m:FindFirstChild("Humanoid") then
+				if m.Humanoid.Health <= 0 then
+					local attachment = Instance.new("Attachment")
+					attachment.Parent = hp
+					attachment.Position = rR.Position
+					local BV = Instance.new("VectorForce")
+					BV.Parent = hp
+					BV.Attachment0 = attachment
+					BV.Force = Vector3.new(0,25,25)
+					local BleedCoro = coroutine.create(bleed)
+					coroutine.resume(BleedCoro,hP,rR)
+					task.wait(0.25)
+					BV:Destroy()
+					attachment:Destroy()
+					return 
+				end
+				if hp.Name == "Head" and m.Humanoid.Health >= 1 then
+					m.Humanoid:TakeDamage(damage * headshotMultiplier)
+					local hitmarkerCoro = coroutine.create(hitmarker)
+					coroutine.resume(hitmarkerCoro)
+					local attachment = Instance.new("Attachment")
+					attachment.Parent = hp
+					attachment.Position = rR.Position
+					local BV = Instance.new("VectorForce")
+					BV.Parent = hp
+					BV.Attachment0 = attachment
+					BV.Force = Vector3.new(0,25,25)
+					local BleedCoro = coroutine.create(bleed)
+					coroutine.resume(BleedCoro,hP,rR,hp)
+					task.wait(0.25)
+					BV:Destroy()
+					attachment:Destroy()
+					return
+				end
+				if table.find(torso,hp.Name) and m.Humanoid.Health >= 1 then
+					m.Humanoid:TakeDamage(damage * bodyshotMultiplier)
+					local hitmarkerCoro = coroutine.create(hitmarker)
+					coroutine.resume(hitmarkerCoro)
+					local attachment = Instance.new("Attachment")
+					attachment.Parent = hp
+					attachment.Position = rR.Position
+					local BV = Instance.new("VectorForce")
+					BV.Parent = hp
+					BV.Attachment0 = attachment
+					BV.Force = Vector3.new(0,25,25)
+					local BleedCoro = coroutine.create(bleed)
+					coroutine.resume(BleedCoro,hP,rR,hp)
+					task.wait(0.25)
+					BV:Destroy()
+					attachment:Destroy()
+					return
+				end
+				if table.find(arms,hp.Name) and m.Humanoid.Health >= 1 then
+					m.Humanoid:TakeDamage(damage * armshotMultiplier)
+					local hitmarkerCoro = coroutine.create(hitmarker)
+					coroutine.resume(hitmarkerCoro)
+					local attachment = Instance.new("Attachment")
+					attachment.Parent = hp
+					attachment.Position = rR.Position
+					local BV = Instance.new("VectorForce")
+					BV.Parent = hp
+					BV.Attachment0 = attachment
+					BV.Force = Vector3.new(0,25,25)
+					local BleedCoro = coroutine.create(bleed)
+					coroutine.resume(BleedCoro,hP,rR,hp)
+					task.wait(0.25)
+					BV:Destroy()
+					attachment:Destroy()
+					return
+				end
+				if table.find(legs,hp.Name) and m.Humanoid.Health >= 1 then
+					m.Humanoid:TakeDamage(damage * legshotMultiplier)
+					local hitmarkerCoro = coroutine.create(hitmarker)
+					coroutine.resume(hitmarkerCoro)
+					local attachment = Instance.new("Attachment")
+					attachment.Parent = hp
+					attachment.Position = rR.Position
+					local BV = Instance.new("VectorForce")
+					BV.Parent = hp
+					BV.Attachment0 = attachment
+					BV.Force = Vector3.new(0,25,25)
+					local BleedCoro = coroutine.create(bleed)
+					coroutine.resume(BleedCoro,hP,rR,hp)
+					task.wait(0.25)
+					BV:Destroy()
+					attachment:Destroy()
+					return
+				end
+				if table.find(feet,hp.Name) and m.Humanoid.Health >= 1 then
+					m.Humanoid:TakeDamage(damage * footshotMultiplier)
+					local hitmarkerCoro = coroutine.create(hitmarker)
+					coroutine.resume(hitmarkerCoro)
+					local attachment = Instance.new("Attachment")
+					attachment.Parent = hp
+					attachment.Position = rR.Position
+					local BV = Instance.new("VectorForce")
+					BV.Parent = hp
+					BV.Attachment0 = attachment
+					BV.Force = Vector3.new(0,25,25)
+					local BleedCoro = coroutine.create(bleed)
+					coroutine.resume(BleedCoro,hP,rR,hp)
+					task.wait(0.25)
+					BV:Destroy()
+					attachment:Destroy()
+					return
+				end
+			else
+				local MissCoro = coroutine.create(miss)
+				coroutine.resume(MissCoro,hP,rR,hp)
+			end
+		end
+	end
+
+end)
